@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "bTNNUSm7HGJRIuRg+sdVKzEruRZbQu8OY+p4PMAyRueDMkiqLdTkGZwgzo7YDBbVF6Q1imQ9H12XDh04Jg634Q==",
+  "success": true,
+  "projectFilePath": "D:\\Repos\\TransactionDiscovery\\TransactionDiscovery.Host\\TransactionDiscovery.Host.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Illia_Pivtoraiko\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.10.9\\microsoft.visualstudio.azure.containers.tools.targets.1.10.9.nupkg.sha512"
+  ],
+  "logs": []
+}
