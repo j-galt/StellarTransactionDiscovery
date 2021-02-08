@@ -1,9 +1,0 @@
-D:\Repos\TransactionDiscovery\TransactionDiscovery.Core\bin\Debug\netcoreapp3.1\TransactionDiscovery.Core.deps.json
-D:\Repos\TransactionDiscovery\TransactionDiscovery.Core\bin\Debug\netcoreapp3.1\TransactionDiscovery.Core.dll
-D:\Repos\TransactionDiscovery\TransactionDiscovery.Core\bin\Debug\netcoreapp3.1\TransactionDiscovery.Core.pdb
-D:\Repos\TransactionDiscovery\TransactionDiscovery.Core\obj\Debug\netcoreapp3.1\TransactionDiscovery.Core.csprojAssemblyReference.cache
-D:\Repos\TransactionDiscovery\TransactionDiscovery.Core\obj\Debug\netcoreapp3.1\TransactionDiscovery.Core.AssemblyInfoInputs.cache
-D:\Repos\TransactionDiscovery\TransactionDiscovery.Core\obj\Debug\netcoreapp3.1\TransactionDiscovery.Core.AssemblyInfo.cs
-D:\Repos\TransactionDiscovery\TransactionDiscovery.Core\obj\Debug\netcoreapp3.1\TransactionDiscovery.Core.csproj.CoreCompileInputs.cache
-D:\Repos\TransactionDiscovery\TransactionDiscovery.Core\obj\Debug\netcoreapp3.1\TransactionDiscovery.Core.dll
-D:\Repos\TransactionDiscovery\TransactionDiscovery.Core\obj\Debug\netcoreapp3.1\TransactionDiscovery.Core.pdb
