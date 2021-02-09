@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TransactionDiscovery.Core.Contracts;
+using TransactionDiscovery.Core.Services;
 
 namespace TransactionDiscovery.Host
 {
@@ -19,6 +21,9 @@ namespace TransactionDiscovery.Host
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
+			services.Configure<ServerConfiguration>(Configuration.GetSection("Horizon"));
+			services.AddTransient<ServerContext>();
+			services.AddTransient<TransactionService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
