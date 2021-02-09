@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TransactionDiscovery.Core.Contracts;
 using TransactionDiscovery.Core.Services;
+using Microsoft.EntityFrameworkCore;
+using TransactionDiscovery.Infrastructure.Persistence;
 
 namespace TransactionDiscovery.Host
 {
@@ -17,16 +19,18 @@ namespace TransactionDiscovery.Host
 
 		public IConfiguration Configuration { get; }
 
-		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
+
 			services.Configure<ServerConfiguration>(Configuration.GetSection("Horizon"));
+			services.AddDbContext<TdsDbContext>(options =>
+				options.UseSqlServer(Configuration.GetConnectionString("TdsDb")));
+
 			services.AddTransient<ServerContext>();
 			services.AddTransient<TransactionService>();
 		}
 
-		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			if (env.IsDevelopment())
