@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TransactionDiscovery.Core\TransactionDiscovery.Core.csproj" />
-    <ProjectReference Include="..\TransactionDiscovery\TransactionDiscovery.Infrastructure.csproj" />
+    <ProjectReference Include="..\TransactionDiscovery.Infrastructure\TransactionDiscovery.Infrastructure.csproj" />
   </ItemGroup>
 
 
