@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using stellar_dotnet_sdk;
 using stellar_dotnet_sdk.responses;
@@ -17,27 +18,32 @@ namespace TransactionDiscovery.Core.Services
 	{
 		private readonly ServerContext _serverContext;
 		private readonly ITransactionRepository _transactionRepository;
+		private readonly IAccountRepository _accountRepository;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public TransactionService(
 			ServerContext serverContext,
 			ITransactionRepository transactionRepository,
-			IUnitOfWork unitOfWork)
+			IUnitOfWork unitOfWork,
+			IAccountRepository accountRepository)
 		{
 			_serverContext = serverContext;
 			_transactionRepository = transactionRepository;
 			_unitOfWork = unitOfWork;
+			_accountRepository = accountRepository;
 		}
 
 		public async Task AddNewTransactionsForAccounts(IEnumerable<string> accountIds)
 		{
 			foreach (var accountId in accountIds)
 			{
-				// Validate account exists
+				if (!_accountRepository.Exists(accountId))
+					await _accountRepository.AddAsync(accountId);
 
 				var lastAddedPaymentId = _transactionRepository.Transactions
-					.Where(t => t.SourceAccountId == accountId)
+					.Where(t => t.AccountId == accountId)
 					.SelectMany(t => t.Operations, (operations, operation) => operation.Id)
+					.DefaultIfEmpty()
 					.Max();
 
 				var payments = await GetNativeAssetPayments(accountId, lastAddedPaymentId.ToString());
@@ -48,7 +54,7 @@ namespace TransactionDiscovery.Core.Services
 					{
 						Id = Guid.NewGuid(),
 						Hash = tr.Key,
-						SourceAccountId = tr.First().SourceAccount,
+						AccountId = accountId,
 						Operations = tr.Select(o => new Domain.Operation
 						{
 							Id = o.Id,

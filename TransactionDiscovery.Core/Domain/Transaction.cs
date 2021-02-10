@@ -9,7 +9,7 @@ namespace TransactionDiscovery.Core.Domain
 		public Guid Id { get; set; }
 		public string Hash { get; set; }
 
-		public string SourceAccountId { get; set; }
+		public string AccountId { get; set; }
 		public ICollection<Operation> Operations { get; set; }
 	}
 }

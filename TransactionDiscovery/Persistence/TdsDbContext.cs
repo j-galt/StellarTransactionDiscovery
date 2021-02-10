@@ -25,7 +25,7 @@ namespace TransactionDiscovery.Infrastructure.Persistence
 			modelBuilder.Entity<Transaction>()
 				.HasOne<Account>()
 				.WithMany(a => a.Transactions)
-				.HasForeignKey(t => t.SourceAccountId);
+				.HasForeignKey(t => t.AccountId);
 		}
 	}
 }

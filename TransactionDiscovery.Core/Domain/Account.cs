@@ -7,7 +7,6 @@ namespace TransactionDiscovery.Core.Domain
 	public class Account
 	{
 		public string Id { get; set; }
-		public ulong SequenceNumber { get; set; }
 
 		public ICollection<Transaction> Transactions { get; set; }
 	}
