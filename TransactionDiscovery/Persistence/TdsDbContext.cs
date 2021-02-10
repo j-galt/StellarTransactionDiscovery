@@ -9,6 +9,8 @@ namespace TransactionDiscovery.Infrastructure.Persistence
 	public class TdsDbContext : DbContext
 	{
 		public DbSet<Transaction> Transactions { get; set; }
+		public DbSet<Account> Accounts { get; set; }
+		public DbSet<Operation> Operations { get; set; }
 
 		public TdsDbContext(DbContextOptions<TdsDbContext> options) : base(options)
 		{
