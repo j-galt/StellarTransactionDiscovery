@@ -56,6 +56,13 @@ namespace TransactionDiscovery.Host
 			{
 				endpoints.MapControllers();
 			});
+
+			if (env.IsEnvironment("DockerDevelopment"))
+			{
+				using var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+				var context = scope.ServiceProvider.GetService<TdsDbContext>();
+				context.Database.Migrate();
+			}
 		}
 	}
 }
