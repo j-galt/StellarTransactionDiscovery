@@ -32,6 +32,8 @@ namespace TransactionDiscovery.Host
 			services.AddScoped<ITransactionRepository, TransactionRepository>();
 			services.AddScoped<IAccountRepository, AccountRepository>();
 			services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+			services.AddSingleton<IAccountProcessQueue, AccountProcessQueue>();
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

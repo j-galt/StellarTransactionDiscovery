@@ -24,6 +24,11 @@ namespace TransactionDiscovery.Infrastructure.Persistence
 			return Accounts.Any(a => a.Id == id);
 		}
 
+		public async Task AddIfNotExistsAsync(string id)
+		{
+			if (!Exists(id)) await AddAsync(id);
+		}
+
 		public async Task AddAsync(string id)
 		{
 			await _dbContext.Accounts.AddAsync(new Account { Id = id });

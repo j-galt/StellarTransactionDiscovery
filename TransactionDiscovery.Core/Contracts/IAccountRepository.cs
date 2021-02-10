@@ -8,6 +8,7 @@ namespace TransactionDiscovery.Core.Contracts
 	public interface IAccountRepository
 	{
 		bool Exists(string id);
+		Task AddIfNotExistsAsync(string id);
 		Task AddAsync(string id);
 	}
 }

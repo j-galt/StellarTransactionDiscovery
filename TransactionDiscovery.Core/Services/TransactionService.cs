@@ -1,28 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using stellar_dotnet_sdk;
-using stellar_dotnet_sdk.responses;
+
 using stellar_dotnet_sdk.responses.operations;
-using stellar_dotnet_sdk.responses.page;
-using stellar_dotnet_sdk.responses.results;
+
 using TransactionDiscovery.Core.Contracts;
+using TransactionDiscovery.Core.Services.Extensions;
 
 namespace TransactionDiscovery.Core.Services
 {
 	public class TransactionService
 	{
 		private readonly ServerContext _serverContext;
+		private readonly IAccountProcessQueue _accountProcessQueue;
 		private readonly ITransactionRepository _transactionRepository;
 		private readonly IAccountRepository _accountRepository;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public TransactionService(
 			ServerContext serverContext,
+			IAccountProcessQueue accountProcessQueue,
 			ITransactionRepository transactionRepository,
 			IUnitOfWork unitOfWork,
 			IAccountRepository accountRepository)
@@ -31,41 +28,25 @@ namespace TransactionDiscovery.Core.Services
 			_transactionRepository = transactionRepository;
 			_unitOfWork = unitOfWork;
 			_accountRepository = accountRepository;
+			_accountProcessQueue = accountProcessQueue;
 		}
 
 		public async Task AddNewTransactionsForAccounts(IEnumerable<string> accountIds)
 		{
-			foreach (var accountId in accountIds)
+			var queuedAccounts = _accountProcessQueue.Enqueue(accountIds).ToList();
+
+			foreach (var accountId in queuedAccounts)
 			{
-				if (!_accountRepository.Exists(accountId))
-					await _accountRepository.AddAsync(accountId);
+				await _accountRepository.AddIfNotExistsAsync(accountId);
 
-				var lastAddedPaymentId = _transactionRepository.Transactions
-					.Where(t => t.AccountId == accountId)
-					.SelectMany(t => t.Operations, (operations, operation) => operation.Id)
-					.DefaultIfEmpty()
-					.Max();
+				var lastPaymentId = GetLastPaymentId(accountId);
+				var payments = await GetNativeAssetPayments(accountId, lastPaymentId.ToString());
 
-				var payments = await GetNativeAssetPayments(accountId, lastAddedPaymentId.ToString());
-
-				var transactions = payments
-					.GroupBy(p => p.TransactionHash)
-					.Select(tr => new Domain.Transaction
-					{
-						Id = Guid.NewGuid(),
-						Hash = tr.Key,
-						AccountId = accountId,
-						Operations = tr.Select(o => new Domain.Operation
-						{
-							Id = o.Id,
-							Amount = decimal.Parse(o.Amount),
-							Type = o.AssetType
-						}).ToArray()
-					});
-
-				await _transactionRepository.AddRangeAsync(transactions);
+				await _transactionRepository.AddRangeAsync(payments.ToTransactions(accountId));
 				await _unitOfWork.CommitAsync();
 			}
+
+			_accountProcessQueue.Dequeue(queuedAccounts);
 		}
 
 		public async Task<IEnumerable<PaymentOperationResponse>> GetNativeAssetPayments(
@@ -77,11 +58,19 @@ namespace TransactionDiscovery.Core.Services
 				.Cursor(cursor)
 				.Execute();
 
-			//Create constants
 			return operations.Records
-				.Where(o => o.Type == "payment")
+				.Where(o => o.Type == StellarTransactionType.Payment)
 				.OfType<PaymentOperationResponse>()
-				.Where(p => p.AssetType == "native");
+				.Where(p => p.AssetType == StellarAssetType.Native);
+		}
+
+		private long GetLastPaymentId(string accountId)
+		{
+			return _transactionRepository.Transactions
+				.Where(t => t.AccountId == accountId)
+				.SelectMany(t => t.Operations, (operations, operation) => operation.Id)
+				.DefaultIfEmpty()
+				.Max();
 		}
 	}
 }
