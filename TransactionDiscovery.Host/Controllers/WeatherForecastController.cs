@@ -24,8 +24,8 @@ namespace TransactionDiscovery.Host.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Get()
 		{
-			var transactions = await _transactionService.GetPaymentTransactions("GAVMAUBRY2IM2ZJ5YGWRCJHV2HZ2LRQUGHGMULGU53ERK5XF2A2GWKCN");
-			return Ok(transactions);
+			await _transactionService.AddNewTransactionsForAccounts(new[] { "GAVMAUBRY2IM2ZJ5YGWRCJHV2HZ2LRQUGHGMULGU53ERK5XF2A2GWKCN" });
+			return Ok();
 		}
 	}
 }

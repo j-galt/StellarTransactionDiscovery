@@ -21,14 +21,45 @@ namespace TransactionDiscovery.Core.Services
 			_serverContext = serverContext;
 		}
 
-		public async Task<IEnumerable<OperationResponse>> GetPaymentTransactions(string account)
+		public async Task AddNewTransactionsForAccounts(IEnumerable<string> accountIds)
+		{
+			foreach (var accountId in accountIds)
+			{
+				var payments = await GetNativeAssetPayments(accountId);
+
+				var transactions = payments
+					.GroupBy(p => p.TransactionHash)
+					.Select(tr => new Domain.Transaction
+					{
+						Id = Guid.NewGuid(),
+						Hash = tr.Key,
+						SourceAccountId = tr.First().SourceAccount,
+						Operations = tr.Select(o => new Domain.Operation
+						{
+							Id = o.Id,
+							Amount = decimal.Parse(o.Amount),
+							Type = o.AssetType
+						}).ToArray()
+					});
+
+				// persist trs
+			}
+		}
+
+		public async Task<IEnumerable<PaymentOperationResponse>> GetNativeAssetPayments(
+			string account,
+			string cursor = "")
 		{
 			var operations = await _serverContext.Server.Payments
 				.ForAccount(account)
+				.Cursor(cursor)
 				.Execute();
 
-			return operations.Records.Where(o =>
-				o.Type == "payment" && ((PaymentOperationResponse)o).AssetType == "native");
+			//Create constants
+			return operations.Records
+				.Where(o => o.Type == "payment")
+				.OfType<PaymentOperationResponse>()
+				.Where(p => p.AssetType == "native");
 		}
 	}
 }
