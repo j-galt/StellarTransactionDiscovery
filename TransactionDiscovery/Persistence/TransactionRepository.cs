@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+
 using TransactionDiscovery.Core.Contracts;
 using TransactionDiscovery.Core.Domain;
 
@@ -10,7 +11,7 @@ namespace TransactionDiscovery.Infrastructure.Persistence
 {
 	public class TransactionRepository : ITransactionRepository
 	{
-		protected readonly TdsDbContext _dbContext;
+		private readonly TdsDbContext _dbContext;
 
 		public IQueryable<Transaction> Transactions => _dbContext.Transactions.AsQueryable();
 

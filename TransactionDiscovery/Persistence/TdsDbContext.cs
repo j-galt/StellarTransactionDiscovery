@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using TransactionDiscovery.Core.Domain;
 
 namespace TransactionDiscovery.Infrastructure.Persistence
@@ -18,7 +16,8 @@ namespace TransactionDiscovery.Infrastructure.Persistence
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<Operation>().HasKey(o => new { o.Id, o.TransactionId });
+			modelBuilder.Entity<Operation>()
+				.HasKey(o => new { o.Id, o.TransactionId });
 			modelBuilder.Entity<Operation>()
 				.HasOne<Transaction>()
 				.WithMany(t => t.Operations);

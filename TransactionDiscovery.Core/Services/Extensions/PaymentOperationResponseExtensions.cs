@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+
 using stellar_dotnet_sdk.responses.operations;
+
 using TransactionDiscovery.Core.Domain;
 
 namespace TransactionDiscovery.Core.Services.Extensions

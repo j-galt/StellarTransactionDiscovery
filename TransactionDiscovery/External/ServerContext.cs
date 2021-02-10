@@ -1,11 +1,13 @@
 ﻿using System;
+
 using Microsoft.Extensions.Options;
 using stellar_dotnet_sdk;
+
 using TransactionDiscovery.Core.Contracts;
 
-namespace TransactionDiscovery.Core.Services
+namespace TransactionDiscovery.Infrastructure.External
 {
-	public class ServerContext : IDisposable
+	public class ServerContext : IServerContext, IDisposable
 	{
 		public Server Server { get; }
 

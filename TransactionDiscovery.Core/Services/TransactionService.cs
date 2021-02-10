@@ -2,30 +2,28 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using stellar_dotnet_sdk.responses.operations;
-
 using TransactionDiscovery.Core.Contracts;
 using TransactionDiscovery.Core.Domain;
 using TransactionDiscovery.Core.Services.Extensions;
 
 namespace TransactionDiscovery.Core.Services
 {
-	public class TransactionService
+	public class TransactionService : ITransactionService
 	{
-		private readonly ServerContext _serverContext;
+		private readonly IStellarRepository _stellarRepository;
 		private readonly IAccountProcessQueue _accountProcessQueue;
 		private readonly ITransactionRepository _transactionRepository;
 		private readonly IAccountRepository _accountRepository;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public TransactionService(
-			ServerContext serverContext,
-			IAccountProcessQueue accountProcessQueue,
+			IStellarRepository stellarRepository,
 			ITransactionRepository transactionRepository,
+			IAccountRepository accountRepository,
 			IUnitOfWork unitOfWork,
-			IAccountRepository accountRepository)
+			IAccountProcessQueue accountProcessQueue)
 		{
-			_serverContext = serverContext;
+			_stellarRepository = stellarRepository;
 			_transactionRepository = transactionRepository;
 			_unitOfWork = unitOfWork;
 			_accountRepository = accountRepository;
@@ -54,7 +52,7 @@ namespace TransactionDiscovery.Core.Services
 		private async Task<Transaction[]> GetNewTransactions(string accountId)
 		{
 			var lastPaymentId = GetLastPaymentId(accountId);
-			var payments = await GetNativeAssetPayments(accountId, lastPaymentId.ToString());
+			var payments = await _stellarRepository.GetNativeAssetPayments(accountId, lastPaymentId.ToString());
 			return payments.ToTransactions(accountId).ToArray();
 		}
 
@@ -65,21 +63,6 @@ namespace TransactionDiscovery.Core.Services
 				.SelectMany(t => t.Operations, (operations, operation) => operation.Id)
 				.DefaultIfEmpty()
 				.Max();
-		}
-
-		private async Task<IEnumerable<PaymentOperationResponse>> GetNativeAssetPayments(
-			string account,
-			string cursor = "")
-		{
-			var operations = await _serverContext.Server.Payments
-				.ForAccount(account)
-				.Cursor(cursor)
-				.Execute();
-
-			return operations.Records
-				.Where(o => o.Type == StellarTransactionType.Payment)
-				.OfType<PaymentOperationResponse>()
-				.Where(p => p.AssetType == StellarAssetType.Native);
 		}
 	}
 }

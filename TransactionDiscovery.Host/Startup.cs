@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+
 using TransactionDiscovery.Core.Contracts;
 using TransactionDiscovery.Core.Services;
-using Microsoft.EntityFrameworkCore;
+using TransactionDiscovery.Infrastructure.External;
 using TransactionDiscovery.Infrastructure.Persistence;
 
 namespace TransactionDiscovery.Host
@@ -27,8 +29,9 @@ namespace TransactionDiscovery.Host
 			services.AddDbContext<TdsDbContext>(options =>
 				options.UseSqlServer(Configuration.GetConnectionString("TdsDb")));
 
-			services.AddScoped<ServerContext>();
-			services.AddScoped<TransactionService>();
+			services.AddScoped<IServerContext, ServerContext>();
+			services.AddScoped<IStellarRepository, StellarRepository>();
+			services.AddScoped<ITransactionService, TransactionService>();
 			services.AddScoped<ITransactionRepository, TransactionRepository>();
 			services.AddScoped<IAccountRepository, AccountRepository>();
 			services.AddScoped<IUnitOfWork, UnitOfWork>();

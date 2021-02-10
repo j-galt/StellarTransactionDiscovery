@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-using TransactionDiscovery.Core.Services;
+using TransactionDiscovery.Core.Contracts;
 
 namespace TransactionDiscovery.Host.Controllers
 {
@@ -10,9 +10,9 @@ namespace TransactionDiscovery.Host.Controllers
 	[Route("accounts/transactions")]
 	public class TransactionsController1 : ControllerBase
 	{
-		private readonly TransactionService _transactionService;
+		private readonly ITransactionService _transactionService;
 
-		public TransactionsController1(TransactionService transactionService)
+		public TransactionsController1(ITransactionService transactionService)
 		{
 			_transactionService = transactionService;
 		}

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TransactionDiscovery.Core.Contracts
+﻿namespace TransactionDiscovery.Core.Contracts
 {
 	public static class StellarAssetType
 	{

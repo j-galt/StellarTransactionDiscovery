@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+
 using TransactionDiscovery.Core.Contracts;
 using TransactionDiscovery.Core.Domain;
 
@@ -10,7 +9,7 @@ namespace TransactionDiscovery.Infrastructure.Persistence
 {
 	public class AccountRepository : IAccountRepository
 	{
-		protected readonly TdsDbContext _dbContext;
+		private readonly TdsDbContext _dbContext;
 
 		public IQueryable<Account> Accounts => _dbContext.Accounts.AsQueryable();
 
