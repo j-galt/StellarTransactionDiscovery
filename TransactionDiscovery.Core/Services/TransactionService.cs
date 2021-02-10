@@ -9,16 +9,24 @@ using stellar_dotnet_sdk.responses;
 using stellar_dotnet_sdk.responses.operations;
 using stellar_dotnet_sdk.responses.page;
 using stellar_dotnet_sdk.responses.results;
+using TransactionDiscovery.Core.Contracts;
 
 namespace TransactionDiscovery.Core.Services
 {
 	public class TransactionService
 	{
 		private readonly ServerContext _serverContext;
+		private readonly IRepository<Domain.Transaction> _transactionRepository;
+		private readonly IUnitOfWork _unitOfWork;
 
-		public TransactionService(ServerContext serverContext)
+		public TransactionService(
+			ServerContext serverContext,
+			IRepository<Domain.Transaction> transactionRepository,
+			IUnitOfWork unitOfWork)
 		{
 			_serverContext = serverContext;
+			_transactionRepository = transactionRepository;
+			_unitOfWork = unitOfWork;
 		}
 
 		public async Task AddNewTransactionsForAccounts(IEnumerable<string> accountIds)
@@ -42,7 +50,8 @@ namespace TransactionDiscovery.Core.Services
 						}).ToArray()
 					});
 
-				// persist trs
+				await _transactionRepository.AddRangeAsync(transactions);
+				await _unitOfWork.CommitAsync();
 			}
 		}
 

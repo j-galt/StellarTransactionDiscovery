@@ -27,8 +27,10 @@ namespace TransactionDiscovery.Host
 			services.AddDbContext<TdsDbContext>(options =>
 				options.UseSqlServer(Configuration.GetConnectionString("TdsDb")));
 
-			services.AddTransient<ServerContext>();
-			services.AddTransient<TransactionService>();
+			services.AddScoped<ServerContext>();
+			services.AddScoped<TransactionService>();
+			services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+			services.AddScoped<IUnitOfWork, UnitOfWork>();
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
