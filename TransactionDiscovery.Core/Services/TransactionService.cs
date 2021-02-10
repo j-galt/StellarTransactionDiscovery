@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using stellar_dotnet_sdk.responses.operations;
 
 using TransactionDiscovery.Core.Contracts;
+using TransactionDiscovery.Core.Domain;
 using TransactionDiscovery.Core.Services.Extensions;
 
 namespace TransactionDiscovery.Core.Services
@@ -31,25 +32,42 @@ namespace TransactionDiscovery.Core.Services
 			_accountProcessQueue = accountProcessQueue;
 		}
 
-		public async Task AddNewTransactionsForAccounts(IEnumerable<string> accountIds)
+		public async Task<IEnumerable<Transaction>> AddNewTransactionsForAccounts(IEnumerable<string> accountIds)
 		{
+			var newTransactions = new List<Transaction>();
 			var queuedAccounts = _accountProcessQueue.Enqueue(accountIds).ToList();
 
 			foreach (var accountId in queuedAccounts)
 			{
 				await _accountRepository.AddIfNotExistsAsync(accountId);
+				var transactions = await GetNewTransactions(accountId);
 
-				var lastPaymentId = GetLastPaymentId(accountId);
-				var payments = await GetNativeAssetPayments(accountId, lastPaymentId.ToString());
-
-				await _transactionRepository.AddRangeAsync(payments.ToTransactions(accountId));
+				await _transactionRepository.AddRangeAsync(transactions);
 				await _unitOfWork.CommitAsync();
+				newTransactions.AddRange(transactions);
 			}
 
 			_accountProcessQueue.Dequeue(queuedAccounts);
+			return newTransactions;
 		}
 
-		public async Task<IEnumerable<PaymentOperationResponse>> GetNativeAssetPayments(
+		private async Task<Transaction[]> GetNewTransactions(string accountId)
+		{
+			var lastPaymentId = GetLastPaymentId(accountId);
+			var payments = await GetNativeAssetPayments(accountId, lastPaymentId.ToString());
+			return payments.ToTransactions(accountId).ToArray();
+		}
+
+		private long GetLastPaymentId(string accountId)
+		{
+			return _transactionRepository.Transactions
+				.Where(t => t.AccountId == accountId)
+				.SelectMany(t => t.Operations, (operations, operation) => operation.Id)
+				.DefaultIfEmpty()
+				.Max();
+		}
+
+		private async Task<IEnumerable<PaymentOperationResponse>> GetNativeAssetPayments(
 			string account,
 			string cursor = "")
 		{
@@ -62,15 +80,6 @@ namespace TransactionDiscovery.Core.Services
 				.Where(o => o.Type == StellarTransactionType.Payment)
 				.OfType<PaymentOperationResponse>()
 				.Where(p => p.AssetType == StellarAssetType.Native);
-		}
-
-		private long GetLastPaymentId(string accountId)
-		{
-			return _transactionRepository.Transactions
-				.Where(t => t.AccountId == accountId)
-				.SelectMany(t => t.Operations, (operations, operation) => operation.Id)
-				.DefaultIfEmpty()
-				.Max();
 		}
 	}
 }
