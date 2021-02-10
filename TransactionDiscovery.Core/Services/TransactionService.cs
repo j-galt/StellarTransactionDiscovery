@@ -16,12 +16,12 @@ namespace TransactionDiscovery.Core.Services
 	public class TransactionService
 	{
 		private readonly ServerContext _serverContext;
-		private readonly IRepository<Domain.Transaction> _transactionRepository;
+		private readonly ITransactionRepository _transactionRepository;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public TransactionService(
 			ServerContext serverContext,
-			IRepository<Domain.Transaction> transactionRepository,
+			ITransactionRepository transactionRepository,
 			IUnitOfWork unitOfWork)
 		{
 			_serverContext = serverContext;
@@ -33,7 +33,14 @@ namespace TransactionDiscovery.Core.Services
 		{
 			foreach (var accountId in accountIds)
 			{
-				var payments = await GetNativeAssetPayments(accountId);
+				// Validate account exists
+
+				var lastAddedPaymentId = _transactionRepository.Transactions
+					.Where(t => t.SourceAccountId == accountId)
+					.SelectMany(t => t.Operations, (operations, operation) => operation.Id)
+					.Max();
+
+				var payments = await GetNativeAssetPayments(accountId, lastAddedPaymentId.ToString());
 
 				var transactions = payments
 					.GroupBy(p => p.TransactionHash)

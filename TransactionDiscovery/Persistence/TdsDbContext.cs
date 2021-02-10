@@ -18,10 +18,10 @@ namespace TransactionDiscovery.Infrastructure.Persistence
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+			modelBuilder.Entity<Operation>().HasKey(o => new { o.Id, o.TransactionId });
 			modelBuilder.Entity<Operation>()
 				.HasOne<Transaction>()
 				.WithMany(t => t.Operations);
-
 			modelBuilder.Entity<Transaction>()
 				.HasOne<Account>()
 				.WithMany(a => a.Transactions)

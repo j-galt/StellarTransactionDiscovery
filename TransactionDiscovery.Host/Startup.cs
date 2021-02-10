@@ -29,7 +29,7 @@ namespace TransactionDiscovery.Host
 
 			services.AddScoped<ServerContext>();
 			services.AddScoped<TransactionService>();
-			services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+			services.AddScoped<ITransactionRepository, TransactionRepository>();
 			services.AddScoped<IUnitOfWork, UnitOfWork>();
 		}
 
